@@ -28,22 +28,22 @@ main = hspec $ do
 
     it "parse section" $ do
       parse parseSection "" ";comment\n[section] ;comment\na = b\n"
-        `shouldParse` Section (Header "section") [("a", "b")]
+        `shouldParse` (Header "section", [("a", "b")])
 
     it "parse sections" $ do
       parse (many parseSection) "" "[section1]\n a=b\n c=d\n[section2] ;comment\n"
-        `shouldParse` [ Section "section1" [("a", "b"), ("c", "d")]
-                      , Section "section2" []
+        `shouldParse` [ (Header "section1", [("a", "b"), ("c", "d")])
+                      , (Header "section2", [])
                       ]
 
     it "parse ini default + multiple sections" $ do
-      parse parseIni "" "a = b ;comment\n[section] \nc = d\ne=f\n[other section]h=i"
-        `shouldParse` [ Section (Header "default") [("a", "b")]
-                      , Section (Header "section") [("c", "d"), ("e", "f")]
-                      , Section (Header "other section") [("h", "i")]
+      parse parseIni' "" "a = b ;comment\n[section] \nc = d\ne=f\n[other section]h=i"
+        `shouldParse` [ (Header "default", [("a", "b")])
+                      , (Header "section", [("c", "d"), ("e", "f")])
+                      , (Header "other section", [("h", "i")])
                       ]
 
     it "parse ini default only" $ do
-      parse parseIni "" "a = b ;comment\n"
-        `shouldParse` [ Section (Header "default") [("a", "b")]
+      parse parseIni' "" "a = b ;comment\n"
+        `shouldParse` [ (Header "default", [("a", "b")])
                       ]
